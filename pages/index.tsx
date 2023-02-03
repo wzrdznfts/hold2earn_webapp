@@ -1,0 +1,265 @@
+import {
+  useAddress,
+  useMetamask,
+  useCoinbaseWallet,
+  useWalletConnect,
+  useTokenBalance,
+  useContract,
+  getErc20,
+  getErc721,
+} from "@thirdweb-dev/react";
+import type { NextPage } from "next";
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import axios from "axios";
+import NftPagination from "../components/nftPagination";
+import INFTPaginationProps from "../interfaces/INFTPaginationProps";
+
+import styles from "../styles/Home.module.css";
+import { ethers } from "ethers";
+
+const tokenContractAddress = "0x772fa612d2F8fC4f8174fDdA390997E5b834f30F";
+const stakingContractAddress = "0x1189E58066182e0eEf30B5f8498BCDf9B71bFdAB";
+
+const Home: NextPage = () => {
+  // Wallet Connection Hooks
+  const address = useAddress();
+  const connectWithMetamask = useMetamask();
+  const connectWithCoinbaseWallet = useCoinbaseWallet();
+  const connectWithWalletConnect = useWalletConnect();
+
+  // Contract Hooks
+  const tokenContract = useContract(tokenContractAddress);
+
+  const { contract, isLoading } = useContract(stakingContractAddress);
+
+  // Load Balance of Token
+  const { data: tokenBalance } = useTokenBalance(
+    tokenContract.contract,
+    address
+  );
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Custom contract functions
+  ///////////////////////////////////////////////////////////////////////////
+  const [claimableRewards, setClaimableRewards] = useState<any>("0");
+  const [wzrdzCount, setWzrdzCount] = useState<number>(0);
+  const [wzrdzNfts, setWzrdzNfts] = useState<string[]>([]);
+  const [nftPagination, setNftPagination] = useState<number>(24);
+
+  const [nftPaginationData, setNftPaginationData] =
+    useState<INFTPaginationProps>({
+      active: 0,
+      pageSize: 0,
+      total: 0,
+      totalFetched: 0,
+      nextCursor: null,
+    });
+
+  async function availableRewards() {
+    const cr = await contract?.call("calculateRewards", address);
+    setClaimableRewards(Number(ethers.utils.formatEther(cr)).toFixed(3));
+  }
+
+  useEffect(() => {
+    if (address && contract) {
+      availableRewards();
+    }
+  }, [address, contract]);
+
+  async function claimRewards() {
+    try {
+      const claim = await contract?.call("claimRewards", address);
+      await claim?.wait();
+    } catch (e) {
+      console.log(e, "claimRewards");
+    }
+  }
+
+  async function getWZRDSData() {
+    const options = {
+      method: "GET",
+      url: `https://deep-index.moralis.io/api/v2/${address}/nft`,
+      params: {
+        chain: "eth",
+        format: "decimal",
+        token_addresses: "0xeb6e4bf8579743cFa95dFf8584Cf1b432cE9a43c",
+        limit: 100,
+        disable_total: false,
+        cursor: nftPaginationData.nextCursor,
+      },
+
+      headers: {
+        accept: "application/json",
+        "X-API-Key":
+          "Q4zKEBeWXo97V8JG45sXlmwoQmSv4nCoKPm9pbAR3qCjGnZK7mqYnb51SyYoqCh4",
+      },
+    };
+
+    axios
+      .request(options)
+      .then(function (response) {
+        for (let i = 0; i < response.data.result.length; i++) {
+          if (response.data.result[i]) {
+            const metadata = JSON.parse(response.data.result[i].metadata);
+            wzrdzNfts.push(metadata);
+            setWzrdzNfts([...wzrdzNfts]);
+          }
+        }
+        setNftPaginationData({
+          active: response.data.page,
+          pageSize: response.data.page_size,
+          totalFetched: response.data.result.length,
+          total: response.data.total,
+          nextCursor: response.data.cursor,
+        });
+        if (wzrdzCount == 0) {
+          setWzrdzCount(response.data.total);
+        }
+      })
+      .catch(function (error: any) {
+        console.error(error);
+      });
+  }
+
+  const handleNextPageChange = async () => {
+    if (wzrdzNfts.length < wzrdzCount) {
+      await getWZRDSData();
+    }
+    setNftPagination(nftPagination + 24);
+  };
+
+  useEffect(() => {
+    if (address && wzrdzNfts.length == 0) {
+      getWZRDSData();
+    }
+  }, [address]);
+
+  return (
+    <div className={styles.container}>
+      <h1 className="text-xl mt-3">Claim your $WZRD</h1>
+      <div className={styles.blueLeft}>
+        <Image
+          src="/blue.png"
+          alt="blue left"
+          layout="responsive"
+          width={689}
+          height={1007}
+          quality={100}
+        />
+      </div>
+      <div className={styles.yellowRight}>
+        <Image
+          src="/yellow.png"
+          alt="yellow right"
+          layout="responsive"
+          width={689}
+          height={1007}
+          quality={100}
+        />
+      </div>
+      <hr className={`${styles.divider} ${styles.spacerTop}`} />
+
+      {!address ? (
+        <div>
+          <button className={styles.mainButton} onClick={connectWithMetamask}>
+            {" "}
+            Meta Mask
+          </button>
+          <button
+            className={styles.mainButton}
+            onClick={connectWithCoinbaseWallet}
+          >
+            {" "}
+            Coinbase Wallet
+          </button>
+          <button
+            className={styles.mainButton}
+            onClick={connectWithWalletConnect}
+          >
+            {" "}
+            Connect Wallet
+          </button>
+        </div>
+      ) : (
+        <>
+          {isLoading || claimableRewards == "0" || !tokenBalance ? (
+            <div className="mt-28">Loading . . .</div>
+          ) : (
+            <>
+              <div className="flex flex-col items-center gap-2">
+                <div className={styles.tokenGrid}>
+                  <div className={styles.tokenItem}>
+                    <h3 className={styles.tokenLabel}>
+                      Claimable Rewards of WZRDZ
+                    </h3>
+                    <p className={styles.tokenValue}>
+                      <b className={styles.valueFont}>{claimableRewards}</b> $
+                      {tokenBalance?.name}
+                    </p>
+                  </div>
+                  <div className={styles.tokenItem}>
+                    <h3 className={styles.tokenLabel}>Current Balance</h3>
+                    <p className={styles.tokenValue}>
+                      <b className={styles.valueFont}>
+                        {Number(tokenBalance?.displayValue).toFixed(3)}
+                      </b>{" "}
+                      ${tokenBalance?.name}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  className={`${styles.mainButton} ${styles.spacerTop}`}
+                  onClick={() => claimRewards()}
+                >
+                  Claim $WZRDS
+                </button>
+              </div>
+
+              <hr className={`${styles.divider} ${styles.spacerTop}`} />
+
+              <h2 className={styles.titleSelected}>Your wzrdz Collection</h2>
+              {wzrdzNfts.length > 0 && (
+                <p className="mb-1">
+                  your {wzrdzCount} wzrdz are earning you {wzrdzCount * 10}{" "}
+                  $WZRDS per day.({wzrdzCount} x 10 $WZRDS)
+                </p>
+              )}
+
+              {wzrdzNfts.length === 0 && (
+                <p className="mb-2">You don't have any WZRDZ</p>
+              )}
+
+              <div className={styles.nftBoxGrid}>
+                {wzrdzNfts.slice(0, nftPagination)?.map((toy: any) => (
+                  <div className={styles.nftBox} key={toy.name}>
+                    <img
+                      className={styles.nftMedia}
+                      src={toy.image.replace("ipfs:/", "https://ipfs.io/ipfs")}
+                    />
+                    <h3 className={styles.tokenName}>{toy.name}</h3>
+                    <p className={styles.tokenValue}></p>
+                  </div>
+                ))}
+              </div>
+              {wzrdzNfts.length > 0 && (
+                <NftPagination
+                  nftPagination={nftPagination}
+                  setNftPagination={setNftPagination}
+                  allNfts={wzrdzNfts}
+                  total={wzrdzCount}
+                  handleNextPageChange={handleNextPageChange}
+                />
+              )}
+
+              <hr className={`${styles.divider} ${styles.spacerTop}`} />
+              <h1 className={styles.h1}>Built by qdibs.eth</h1>
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
+export default Home;
