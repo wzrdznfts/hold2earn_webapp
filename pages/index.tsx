@@ -80,7 +80,7 @@ const Home: NextPage = () => {
     try {
       const options = {
         method: "GET",
-        url: `https://deep-index.moralis.io/api/v2/0xED946D2F962cF5207E209CE0F16b629A293d0A8F/nft`,
+        url: `https://deep-index.moralis.io/api/v2/${address}/nft`,
         params: {
           chain: "eth",
           format: "decimal",
