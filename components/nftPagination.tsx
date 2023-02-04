@@ -11,7 +11,10 @@ export function NftPagination(props: any) {
         out of {props.total}{" "}
       </p>
       {props.total > props.nftPagination && (
-        <button className="mt-2" onClick={props.handleNextPageChange}>
+        <button
+          className="mt-2 bg-[#7f609c]"
+          onClick={props.handleNextPageChange}
+        >
           Show More..
         </button>
       )}

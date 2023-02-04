@@ -77,49 +77,79 @@ const Home: NextPage = () => {
   }
 
   async function getWZRDSData() {
-    const options = {
-      method: "GET",
-      url: `https://deep-index.moralis.io/api/v2/${address}/nft`,
-      params: {
-        chain: "eth",
-        format: "decimal",
-        token_addresses: "0xeb6e4bf8579743cFa95dFf8584Cf1b432cE9a43c",
-        limit: 100,
-        disable_total: false,
-        cursor: nftPaginationData.nextCursor,
-      },
+    try {
+      const options = {
+        method: "GET",
+        url: `https://deep-index.moralis.io/api/v2/0xED946D2F962cF5207E209CE0F16b629A293d0A8F/nft`,
+        params: {
+          chain: "eth",
+          format: "decimal",
+          token_addresses: "0xeb6e4bf8579743cFa95dFf8584Cf1b432cE9a43c",
+          limit: 50,
+          disable_total: false,
+          cursor: nftPaginationData.nextCursor,
+        },
 
-      headers: {
-        accept: "application/json",
-        "X-API-Key":
-          "Q4zKEBeWXo97V8JG45sXlmwoQmSv4nCoKPm9pbAR3qCjGnZK7mqYnb51SyYoqCh4",
-      },
-    };
+        headers: {
+          accept: "application/json",
+          "X-API-Key":
+            "Q4zKEBeWXo97V8JG45sXlmwoQmSv4nCoKPm9pbAR3qCjGnZK7mqYnb51SyYoqCh4",
+        },
+      };
 
-    axios
-      .request(options)
-      .then(function (response) {
-        for (let i = 0; i < response.data.result.length; i++) {
-          if (response.data.result[i]) {
-            const metadata = JSON.parse(response.data.result[i].metadata);
-            wzrdzNfts.push(metadata);
-            setWzrdzNfts([...wzrdzNfts]);
+      axios
+        .request(options)
+        .then(function (response) {
+          for (let i = 0; i < response.data.result.length; i++) {
+            if (response.data.result[i]) {
+              if (
+                response.data.result[i].metadata == null ||
+                response.data.result[i].metadata ==
+                  '{"name":"Meet your wzrdz soon!","description":"Reveal upon sellout!","image":"ipfs://QmTGhLhxrUA2BTjQrbhfWN1oD5L8ZDeqyoRqU21GeTAMAo/0.png"}'
+              ) {
+                const options = {
+                  method: "GET",
+                  url: `https://deep-index.moralis.io/api/v2/nft/0xeb6e4bf8579743cFa95dFf8584Cf1b432cE9a43c/${response.data.result[i].token_id}/metadata/resync?chain=eth&flag=uri&mode=sync`,
+
+                  headers: {
+                    accept: "application/json",
+                    "X-API-Key":
+                      "Q4zKEBeWXo97V8JG45sXlmwoQmSv4nCoKPm9pbAR3qCjGnZK7mqYnb51SyYoqCh4",
+                  },
+                };
+                axios
+                  .request(options)
+                  .then(function (response) {
+                    console.log(response.data, "response.data");
+                  })
+                  .catch(function (error: any) {
+                    console.error(error);
+                  });
+                continue;
+              }
+              const metadata = JSON.parse(response.data.result[i].metadata);
+
+              wzrdzNfts.push(metadata);
+              setWzrdzNfts([...wzrdzNfts]);
+            }
           }
-        }
-        setNftPaginationData({
-          active: response.data.page,
-          pageSize: response.data.page_size,
-          totalFetched: response.data.result.length,
-          total: response.data.total,
-          nextCursor: response.data.cursor,
+          setNftPaginationData({
+            active: response.data.page,
+            pageSize: response.data.page_size,
+            totalFetched: response.data.result.length,
+            total: response.data.total,
+            nextCursor: response.data.cursor,
+          });
+          if (wzrdzCount == 0) {
+            setWzrdzCount(response.data.total);
+          }
+        })
+        .catch(function (error: any) {
+          console.error(error);
         });
-        if (wzrdzCount == 0) {
-          setWzrdzCount(response.data.total);
-        }
-      })
-      .catch(function (error: any) {
-        console.error(error);
-      });
+    } catch (e) {
+      console.log(e, "getWZRDSData");
+    }
   }
 
   const handleNextPageChange = async () => {
