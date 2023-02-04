@@ -137,24 +137,24 @@ const Home: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className="text-xl mt-3">Claim your $WZRD</h1>
+      <h1 className="text-xl mt-3">Welcome Wzrd, claim your $WZRD tokens!</h1>
       <div className={styles.blueLeft}>
         <Image
-          src="/blue.png"
+          src="/left.png"
           alt="blue left"
           layout="responsive"
-          width={689}
-          height={1007}
+          width={600}
+          height={900}
           quality={100}
         />
       </div>
       <div className={styles.yellowRight}>
         <Image
-          src="/yellow.png"
+          src="/right.png"
           alt="yellow right"
           layout="responsive"
-          width={689}
-          height={1007}
+          width={600}
+          height={900}
           quality={100}
         />
       </div>
@@ -178,7 +178,7 @@ const Home: NextPage = () => {
             onClick={connectWithWalletConnect}
           >
             {" "}
-            Connect Wallet
+            WalletConnect
           </button>
         </div>
       ) : (
@@ -212,7 +212,7 @@ const Home: NextPage = () => {
                   className={`${styles.mainButton} ${styles.spacerTop}`}
                   onClick={() => claimRewards()}
                 >
-                  Claim $WZRDS
+                  Claim $WZRD
                 </button>
               </div>
 
@@ -222,7 +222,7 @@ const Home: NextPage = () => {
               {wzrdzNfts.length > 0 && (
                 <p className="mb-1">
                   your {wzrdzCount} wzrdz are earning you {wzrdzCount * 10}{" "}
-                  $WZRDS per day.({wzrdzCount} x 10 $WZRDS)
+                  $WZRD per day.({wzrdzCount} x 10 $WZRD)
                 </p>
               )}
 
