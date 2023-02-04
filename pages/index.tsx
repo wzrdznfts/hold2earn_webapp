@@ -140,7 +140,7 @@ const Home: NextPage = () => {
       <h1 className="text-xl mt-3">Welcome Wzrd, claim your $WZRD tokens!</h1>
       <div className={styles.blueLeft}>
         <Image
-          src="/left.png"
+          src="/left1.png"
           alt="blue left"
           layout="responsive"
           width={600}
@@ -150,7 +150,7 @@ const Home: NextPage = () => {
       </div>
       <div className={styles.yellowRight}>
         <Image
-          src="/right.png"
+          src="/right1.png"
           alt="yellow right"
           layout="responsive"
           width={600}
