@@ -493,7 +493,7 @@ const Home: NextPage = () => {
         </div>
       ) : (
         <>
-          {isLoading ? (
+          {isLoading || claimableRewards == "0" || !tokenBalance ? (
             <div className="mt-28">Loading . . .</div>
           ) : (
             <>
