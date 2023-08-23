@@ -5,6 +5,7 @@ import {
   useWalletConnect,
   useTokenBalance,
   useContract,
+  useContractRead,
   getErc20,
   getErc721,
 } from "@thirdweb-dev/react";
@@ -20,7 +21,284 @@ import { ethers } from "ethers";
 
 const tokenContractAddress = "0x772fa612d2F8fC4f8174fDdA390997E5b834f30F";
 const stakingContractAddress = "0x1189E58066182e0eEf30B5f8498BCDf9B71bFdAB";
-
+const abi = [
+  {
+    inputs: [
+      {
+        internalType: "contract IERC721",
+        name: "_wzrdz",
+        type: "address",
+      },
+      {
+        internalType: "contract IToken",
+        name: "_rewardsToken",
+        type: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "OwnershipTransferred",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "Paused",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "Unpaused",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_address",
+        type: "address",
+      },
+    ],
+    name: "calculateRewards",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_address",
+        type: "address",
+      },
+    ],
+    name: "claimRewards",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "endTime",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "lastClaimedTime",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "pause",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "paused",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "rewardsToken",
+    outputs: [
+      {
+        internalType: "contract IToken",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_timestamp",
+        type: "uint256",
+      },
+    ],
+    name: "setEndTime",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_wzrdzRewardsPerDay",
+        type: "uint256",
+      },
+    ],
+    name: "setRewardsPerDay",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_timestamp",
+        type: "uint256",
+      },
+    ],
+    name: "setStartTime",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "startTime",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "unpause",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "wzrdz",
+    outputs: [
+      {
+        internalType: "contract IERC721",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "wzrdzRewardsPerDay",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+];
 const Home: NextPage = () => {
   // Wallet Connection Hooks
   const address = useAddress();
@@ -30,8 +308,10 @@ const Home: NextPage = () => {
 
   // Contract Hooks
   const tokenContract = useContract(tokenContractAddress);
-
-  const { contract, isLoading } = useContract(stakingContractAddress);
+  const { contract, isLoading } = useContract(
+    "0x1189E58066182e0eEf30B5f8498BCDf9B71bFdAB",
+    abi
+  );
 
   // Load Balance of Token
   const { data: tokenBalance } = useTokenBalance(
@@ -57,7 +337,7 @@ const Home: NextPage = () => {
     });
 
   async function availableRewards() {
-    const cr = await contract?.call("calculateRewards", address);
+    const cr = await contract?.call("calculateRewards", [address]);
     setClaimableRewards(Number(ethers.utils.formatEther(cr)).toFixed(3));
   }
 
@@ -69,7 +349,7 @@ const Home: NextPage = () => {
 
   async function claimRewards() {
     try {
-      const claim = await contract?.call("claimRewards", address);
+      const claim = await contract?.call("claimRewards", [address]);
       await claim?.wait();
     } catch (e) {
       console.log(e, "claimRewards");
@@ -213,7 +493,7 @@ const Home: NextPage = () => {
         </div>
       ) : (
         <>
-          {isLoading || claimableRewards == "0" || !tokenBalance ? (
+          {isLoading ? (
             <div className="mt-28">Loading . . .</div>
           ) : (
             <>

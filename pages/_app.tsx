@@ -9,7 +9,10 @@ const activeChainId = ChainId.Mainnet;
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <ThirdwebProvider desiredChainId={activeChainId}>
+    <ThirdwebProvider
+      desiredChainId={activeChainId}
+      clientId="955f8f5f20c622128fc46d0fbc171fde"
+    >
       <Navbar bg="dark">
         <Container>
           <Navbar.Brand href="#home"></Navbar.Brand>
