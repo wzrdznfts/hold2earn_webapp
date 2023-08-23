@@ -5,12 +5,11 @@ import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
 
 // This is the chainId your dApp will work on.
-const activeChainId = ChainId.Mainnet;
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ThirdwebProvider
-      desiredChainId={activeChainId}
+      activeChain={"ethereum"}
       clientId="955f8f5f20c622128fc46d0fbc171fde"
     >
       <Navbar bg="dark">

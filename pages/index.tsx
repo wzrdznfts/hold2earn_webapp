@@ -472,20 +472,23 @@ const Home: NextPage = () => {
 
       {!address ? (
         <div>
-          <button className={styles.mainButton} onClick={connectWithMetamask}>
+          <button
+            className={styles.mainButton}
+            onClick={connectWithMetamask as any}
+          >
             {" "}
             Meta Mask
           </button>
           <button
             className={styles.mainButton}
-            onClick={connectWithCoinbaseWallet}
+            onClick={connectWithCoinbaseWallet as any}
           >
             {" "}
             Coinbase Wallet
           </button>
           <button
             className={styles.mainButton}
-            onClick={connectWithWalletConnect}
+            onClick={connectWithWalletConnect as any}
           >
             {" "}
             WalletConnect
