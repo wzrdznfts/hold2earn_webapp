@@ -366,7 +366,7 @@ const Home: NextPage = () => {
           format: "decimal",
           token_addresses: "0xeb6e4bf8579743cFa95dFf8584Cf1b432cE9a43c",
           limit: 50,
-          disable_total: false,
+          total: true,
           cursor: nftPaginationData.nextCursor,
         },
 
@@ -380,6 +380,7 @@ const Home: NextPage = () => {
       axios
         .request(options)
         .then(function (response) {
+          console.log(response);
           for (let i = 0; i < response.data.result.length; i++) {
             if (response.data.result[i]) {
               if (

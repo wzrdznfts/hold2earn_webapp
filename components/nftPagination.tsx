@@ -5,11 +5,11 @@ import styles from "../styles/Pagination.module.css";
 export function NftPagination(props: any) {
   return (
     <div className={`${styles.pagination}`}>
-      <p>
+      {/* <p>
         Showing{" "}
         {props.total > props.nftPagination ? props.nftPagination : props.total}{" "}
         out of {props.total}{" "}
-      </p>
+      </p> */}
       {props.total > props.nftPagination && (
         <button
           className="mt-2 bg-[#7f609c]"
