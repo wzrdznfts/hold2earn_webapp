@@ -12,12 +12,14 @@ function MyApp({ Component, pageProps }: AppProps) {
       activeChain={"ethereum"}
       clientId="955f8f5f20c622128fc46d0fbc171fde"
     >
-      <Navbar bg="dark">
-        <Container>
-          <Navbar.Brand href="#home"></Navbar.Brand>
-        </Container>
-      </Navbar>
-      <Component {...pageProps} />
+      <>
+        <Navbar bg="dark">
+          <Container>
+            <Navbar.Brand href="#home"></Navbar.Brand>
+          </Container>
+        </Navbar>
+        <Component {...pageProps} />
+      </>
     </ThirdwebProvider>
   );
 }
